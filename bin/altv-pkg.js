@@ -5,7 +5,7 @@ const chalk = require('chalk');
 
 const fs = require('node:fs');
 const path = require('node:path');
-const { Readable } = require('node:stream');
+const {Readable} = require('node:stream');
 
 const RC_FILE_NAME = '.altvpkgrc.json';
 const CDN_ADDRESS = 'cdn.alt-mp.com';
@@ -17,16 +17,16 @@ const rootPath = process.cwd();
 let platform = process.platform == 'win32' ? 'x64_win32' : 'x64_linux';
 let branch = null;
 
-const { loadJSModule, loadBytecodeModule, loadCSharpModule, loadJSV2Module, loadVoiceServer } = loadRuntimeConfig();
+const {loadJSModule, loadBytecodeModule, loadCSharpModule, loadJSV2Module, loadVoiceServer} = loadRuntimeConfig();
 
 function authorizeDiscord() {
     console.log(chalk.greenBright('===== Authorizing via Discord ====='));
     return new Promise(async (resolve, reject) => {
         try {
-            const client = new RPC.Client({ transport: 'ipc' });
+            const client = new RPC.Client({transport: 'ipc'});
             client.on('ready', async () => {
                 try {
-                    const { code } = await client.request('AUTHORIZE', {
+                    const {code} = await client.request('AUTHORIZE', {
                         scopes: ['identify'],
                         client_id: DISCORD_ID,
                         prompt: 'none',
@@ -40,7 +40,7 @@ function authorizeDiscord() {
                 }
             });
 
-            await client.login({ clientId: DISCORD_ID });
+            await client.login({clientId: DISCORD_ID});
         } catch (e) {
             reject(e);
         }
@@ -52,7 +52,7 @@ async function authorizeCDN(code) {
     try {
         const res = await fetchJsonData('https://qa-auth.alt-mp.com/auth', {
             responseType: 'application/json',
-            headers: { Authorization: code },
+            headers: {Authorization: code},
         });
 
         return res?.token;
@@ -136,7 +136,7 @@ async function start() {
         try {
             const code = await authorizeDiscord();
             const token = await authorizeCDN(code);
-            headers = { 'X-Auth': token };
+            headers = {'X-Auth': token};
         } catch (e) {
             console.error(chalk.redBright(`Failed to authorize: ${e}`));
             return;
@@ -169,7 +169,7 @@ async function start() {
         linuxFiles[file] = `https://${SERVER_CDN_ADDRESS}/server/${serverBranch}/x64_linux/${file}`;
     }
 
-    const windowsFiles = { ...sharedFiles };
+    const windowsFiles = {...sharedFiles};
 
     res = await fetchJsonData(`https://${SERVER_CDN_ADDRESS}/server/${serverBranch}/x64_win32/update.json`, {
         responseType: 'application/json',
@@ -321,7 +321,7 @@ async function start() {
     for (const url of filesUpdate) {
         const promise = new Promise(async (resolve, reject) => {
             /** @type {{ hashList: { [key: string]: string }}} */
-            const data = await fetchJsonData(url, { responseType: 'application/json', headers });
+            const data = await fetchJsonData(url, {responseType: 'application/json', headers});
 
             if (!data) {
                 console.error(chalk.redBright(`Failed to check hash ${url}: ${error}`));
@@ -373,7 +373,7 @@ async function start() {
 
             console.log(chalk.whiteBright(`${file}`));
             const promise = new Promise(async (resolve) => {
-                const response = await fetch(url, { headers }).catch((err) => {
+                const response = await fetch(url, {headers}).catch((err) => {
                     return undefined;
                 });
 
@@ -433,7 +433,7 @@ function loadRuntimeConfig() {
     let loadVoiceServer = false;
 
     try {
-        const data = fs.readFileSync(`./${RC_FILE_NAME}`, { encoding: 'utf8' });
+        const data = fs.readFileSync(`./${RC_FILE_NAME}`, {encoding: 'utf8'});
         const parsedData = JSON.parse(data);
 
         if (typeof parsedData.loadJSModule !== 'undefined') {
@@ -448,7 +448,7 @@ function loadRuntimeConfig() {
         console.log(chalk.gray(`Configuration file '${RC_FILE_NAME}' could not be read. Continuing without...`));
     }
 
-    return { loadJSModule, loadBytecodeModule, loadCSharpModule, loadJSV2Module, loadVoiceServer };
+    return {loadJSModule, loadBytecodeModule, loadCSharpModule, loadJSV2Module, loadVoiceServer};
 }
 
 start();
